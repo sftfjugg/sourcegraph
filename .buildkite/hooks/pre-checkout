@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+git config --global --add safe.directory C:/buildkite-agent/builds/buildkite-agent-windows-1/sourcegraph/cody-app-release
