@@ -267,12 +267,14 @@ require (
 require (
 	github.com/edsrzf/mmap-go v1.1.0
 	github.com/go-redsync/redsync/v4 v4.8.1
+	github.com/google/go-github/v53 v53.2.0
 	github.com/hashicorp/cronexpr v1.1.1
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mroth/weightedrand/v2 v2.0.1
 	github.com/qdrant/go-client v1.3.0
 	github.com/ricochet2200/go-disk-usage/du v0.0.0-20210707232629-ac9918953285
+	github.com/shurcooL/graphql v0.0.0-20230722043721-ed46e5a46466
 	github.com/tj/assert v0.0.0-20190920132354-ee03d75cd160
 	github.com/vektah/gqlparser/v2 v2.4.5
 	go.opentelemetry.io/collector/config/confighttp v0.81.0
