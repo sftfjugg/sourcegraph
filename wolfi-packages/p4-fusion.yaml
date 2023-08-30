@@ -35,12 +35,15 @@ pipeline:
   # Download p4-fusion
   - uses: fetch
     with:
-      uri: https://github.com/salesforce/p4-fusion/archive/refs/tags/v${{package.version}}.tar.gz
-      expected-sha256: f5cbca35880aad2e6fac05c669dab6c13c3389aa62cbc5d5ee2ce73e77bcfe78
+      uri: https://github.com/salesforce/p4-fusion/archive/fbd4cc35d828d8319cdb50ee5f91f5f7718d3ccd.zip
+      expected-sha256: 60bdf9f5b5553639c54c6d5288c88cf4925e1534ff2eb25f80d4f235dcf9913b
       extract: false
   - runs: |
       mkdir p4-fusion-src
-      tar -C p4-fusion-src -xzf v${{package.version}}.tar.gz --strip 1
+      unzip fbd4cc35d828d8319cdb50ee5f91f5f7718d3ccd.zip -d p4-fusion-src
+      mv p4-fusion-src/p4-fusion-fbd4cc35d828d8319cdb50ee5f91f5f7718d3ccd/* p4-fusion-src/
+      rm -rf p4-fusion-src/p4-fusion-fbd4cc35d828d8319cdb50ee5f91f5f7718d3ccd
+      # tar -C p4-fusion-src -xzf v${{package.version}}.tar.gz --strip 1
 
   # Download OpenSSL
   - uses: fetch
