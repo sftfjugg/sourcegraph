@@ -5,6 +5,7 @@ go_library(
     name = "service",
     srcs = [
         "search.go",
+        "searcher.go",
         "service.go",
     ],
     importpath = "github.com/sourcegraph/sourcegraph/internal/search/exhaustive/service",
@@ -13,6 +14,8 @@ go_library(
         "//internal/actor",
         "//internal/metrics",
         "//internal/observation",
+        "//internal/search",
+        "//internal/search/client",
         "//internal/search/exhaustive/store",
         "//internal/search/exhaustive/types",
         "//internal/uploadstore",
@@ -24,11 +27,20 @@ go_library(
 
 go_test(
     name = "service_test",
-    srcs = ["search_test.go"],
+    srcs = [
+        "search_test.go",
+        "searcher_test.go",
+    ],
     embed = [":service"],
     deps = [
+        "//internal/database/dbmocks",
+        "//internal/search/backend",
+        "//internal/search/client",
         "//internal/search/exhaustive/types",
+        "//internal/types",
         "//internal/uploadstore/mocks",
+        "@com_github_sourcegraph_log//logtest",
+        "@com_github_sourcegraph_zoekt//:zoekt",
         "@com_github_stretchr_testify//require",
         "@org_golang_x_exp//slices",
     ],

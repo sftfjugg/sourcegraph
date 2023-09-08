@@ -1,6 +1,7 @@
 package jobutil
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -74,6 +75,9 @@ func NewBasicJob(inputs *search.Inputs, b query.Basic) (job.Job, error) {
 		children = append(children, j)
 	}
 
+	// TODO(keegan) work out what is happening here so we can do exhaustive
+	// search v0
+
 	// Modify the input query if the user specified `file:contains.content()`
 	fileContainsPatterns := b.FileContainsContent()
 	originalQuery := b
@@ -93,10 +97,15 @@ func NewBasicJob(inputs *search.Inputs, b query.Basic) (job.Job, error) {
 		// a basic query rather than first being expanded into
 		// flat queries.
 		resultTypes := computeResultTypes(b, inputs.PatternType)
+		fmt.Println("types", b.Parameters, b.Pattern, inputs.PatternType, "=>", resultTypes)
 		fileMatchLimit := int32(computeFileMatchLimit(b, inputs.Protocol))
 		selector, _ := filter.SelectPathFromString(b.FindValue(query.FieldSelect)) // Invariant: select is validated
 		repoOptions := toRepoOptions(b, inputs.UserSettings)
 		repoUniverseSearch, skipRepoSubsetSearch, runZoektOverRepos := jobMode(b, repoOptions, resultTypes, inputs.PatternType, inputs.OnSourcegraphDotCom)
+
+		repoUniverseSearch = false
+		skipRepoSubsetSearch = false
+		runZoektOverRepos = false
 
 		builder := &jobBuilder{
 			query:          b,
@@ -123,7 +132,7 @@ func NewBasicJob(inputs *search.Inputs, b query.Basic) (job.Job, error) {
 				if err != nil {
 					return nil, err
 				}
-				addJob(&repoPagerJob{
+				addJob(&RepoPagerJob{
 					child:            &reposPartialJob{searchJob},
 					repoOpts:         repoOptions,
 					containsRefGlobs: query.ContainsRefGlobs(b.ToParseTree()),
@@ -146,7 +155,7 @@ func NewBasicJob(inputs *search.Inputs, b query.Basic) (job.Job, error) {
 				if err != nil {
 					return nil, err
 				}
-				addJob(&repoPagerJob{
+				addJob(&RepoPagerJob{
 					child:            &reposPartialJob{searchJob},
 					repoOpts:         repoOptions,
 					containsRefGlobs: query.ContainsRefGlobs(b.ToParseTree()),
@@ -169,9 +178,11 @@ func NewBasicJob(inputs *search.Inputs, b query.Basic) (job.Job, error) {
 			})
 		}
 
-		addJob(&searchrepos.ComputeExcludedJob{
-			RepoOpts: repoOptions,
-		})
+		if false {
+			addJob(&searchrepos.ComputeExcludedJob{
+				RepoOpts: repoOptions,
+			})
+		}
 	}
 
 	{
@@ -236,12 +247,12 @@ func NewBasicJob(inputs *search.Inputs, b query.Basic) (job.Job, error) {
 		}
 	}
 
-	{ // Apply limit
+	if false { // Apply limit
 		maxResults := b.ToParseTree().MaxResults(inputs.DefaultLimit())
 		basicJob = NewLimitJob(maxResults, basicJob)
 	}
 
-	{ // Apply timeout
+	if false { // Apply timeout
 		timeout := timeoutDuration(b)
 		basicJob = NewTimeoutJob(timeout, basicJob)
 	}
@@ -273,7 +284,7 @@ func orderRacingJobs(j job.Job) job.Job {
 	// assume at most one searcher and one repo job exists.
 	var collection []job.Job
 
-	newJob := job.MapType(j, func(pager *repoPagerJob) job.Job {
+	newJob := job.MapType(j, func(pager *RepoPagerJob) job.Job {
 		if job.HasDescendent[*searcher.TextSearchJob](pager) {
 			collection = append(collection, pager)
 			return &NoopJob{}
@@ -294,7 +305,7 @@ func orderRacingJobs(j job.Job) job.Job {
 	// Map the tree to execute jobs in "collection" after any Zoekt jobs. We
 	// assume at most one of either two Zoekt search jobs may exist.
 	seenZoektRepoSearch := false
-	newJob = job.MapType(newJob, func(pager *repoPagerJob) job.Job {
+	newJob = job.MapType(newJob, func(pager *RepoPagerJob) job.Job {
 		if job.HasDescendent[*zoekt.RepoSubsetTextSearchJob](pager) {
 			seenZoektRepoSearch = true
 			return NewSequentialJob(false, append([]job.Job{pager}, collection...)...)
@@ -356,7 +367,7 @@ func NewFlatJob(searchInputs *search.Inputs, f query.Flat) (job.Job, error) {
 					PathRegexps:     getPathRegexpsFromTextPatternInfo(patternInfo),
 				}
 
-				addJob(&repoPagerJob{
+				addJob(&RepoPagerJob{
 					child:            &reposPartialJob{searcherJob},
 					repoOpts:         repoOptions,
 					containsRefGlobs: query.ContainsRefGlobs(f.ToBasic().ToParseTree()),
@@ -373,7 +384,7 @@ func NewFlatJob(searchInputs *search.Inputs, f query.Flat) (job.Job, error) {
 					Limit:       maxResults,
 				}
 
-				addJob(&repoPagerJob{
+				addJob(&RepoPagerJob{
 					child:            &reposPartialJob{symbolSearchJob},
 					repoOpts:         repoOptions,
 					containsRefGlobs: query.ContainsRefGlobs(f.ToBasic().ToParseTree()),

@@ -429,6 +429,7 @@ func (f *Features) String() string {
 // RepoOptions is the source of truth for the options a user specified
 // in their search query that affect which repos should be searched.
 // When adding fields to this struct, be sure to update IsGlobal().
+// TODO ^^ where is IsGlobal() now?
 type RepoOptions struct {
 	RepoFilters         []query.ParsedRepoFilter
 	MinusRepoFilters    []string

@@ -2,6 +2,7 @@ package printer
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 
 	"github.com/sourcegraph/sourcegraph/internal/search/job"
@@ -38,12 +39,12 @@ func SexpFormat(j job.Describer, verbosity job.Verbosity, sep, indent string) st
 		tags := j.Attributes(verbosity)
 		children := j.Children()
 		if len(tags) == 0 && len(children) == 0 {
-			b.WriteString(trimmedUpperName(j.Name()))
+			b.WriteString(fmt.Sprintf("%+T %s", j, trimmedUpperName(j.Name())))
 			return
 		}
 
 		b.WriteByte('(')
-		b.WriteString(trimmedUpperName(j.Name()))
+		b.WriteString(fmt.Sprintf("%+T %s", j, trimmedUpperName(j.Name())))
 		depth++
 		if len(tags) > 0 {
 			enc := sexpKeyValueWriter{b}

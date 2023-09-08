@@ -12,9 +12,10 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/search/streaming"
 	"github.com/sourcegraph/sourcegraph/internal/search/zoekt"
 	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/lib/iterator"
 )
 
-type repoPagerJob struct {
+type RepoPagerJob struct {
 	repoOpts         search.RepoOptions
 	containsRefGlobs bool                          // whether to include repositories with refs
 	child            job.PartialJob[resolvedRepos] // child job tree that need populating a repos field to run
@@ -77,7 +78,7 @@ func setRepos(j job.Job, indexed *zoekt.IndexedRepoRevs, unindexed []*search.Rep
 	})
 }
 
-func (p *repoPagerJob) Run(ctx context.Context, clients job.RuntimeClients, stream streaming.Sender) (alert *search.Alert, err error) {
+func (p *RepoPagerJob) Run(ctx context.Context, clients job.RuntimeClients, stream streaming.Sender) (alert *search.Alert, err error) {
 	_, ctx, stream, finish := job.StartSpan(ctx, stream, p)
 	defer func() { finish(alert, err) }()
 
@@ -115,11 +116,11 @@ func (p *repoPagerJob) Run(ctx context.Context, clients job.RuntimeClients, stre
 	return maxAlerter.Alert, it.Err()
 }
 
-func (p *repoPagerJob) Name() string {
+func (p *RepoPagerJob) Name() string {
 	return "RepoPagerJob"
 }
 
-func (p *repoPagerJob) Attributes(v job.Verbosity) (res []attribute.KeyValue) {
+func (p *RepoPagerJob) Attributes(v job.Verbosity) (res []attribute.KeyValue) {
 	switch v {
 	case job.VerbosityMax:
 		res = append(res,
@@ -134,12 +135,18 @@ func (p *repoPagerJob) Attributes(v job.Verbosity) (res []attribute.KeyValue) {
 	return res
 }
 
-func (p *repoPagerJob) Children() []job.Describer {
+func (p *RepoPagerJob) Children() []job.Describer {
 	return []job.Describer{p.child}
 }
 
-func (p *repoPagerJob) MapChildren(fn job.MapFunc) job.Job {
+func (p *RepoPagerJob) MapChildren(fn job.MapFunc) job.Job {
 	cp := *p
 	cp.child = p.child.MapChildren(fn)
 	return &cp
+}
+
+func (p *RepoPagerJob) RepositoryRevSpecs(ctx context.Context, clients job.RuntimeClients) *iterator.Iterator[repos.Resolved] {
+	return iterator.New(func() ([]repos.Resolved, error) {
+		return nil, nil
+	})
 }
