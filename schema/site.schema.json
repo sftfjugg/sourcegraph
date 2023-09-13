@@ -2661,7 +2661,7 @@
         "provider": {
           "type": "string",
           "description": "The external autocomplete provider. Defaults to 'sourcegraph'.",
-          "default": "anthropic",
+          "default": "sourcegraph",
           "enum": ["anthropic", "openai", "sourcegraph", "azure-openai"]
         },
         "endpoint": {
