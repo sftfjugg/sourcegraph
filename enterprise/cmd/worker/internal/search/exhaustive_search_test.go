@@ -20,6 +20,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/search/exhaustive/service"
 	"github.com/sourcegraph/sourcegraph/internal/search/exhaustive/store"
 	"github.com/sourcegraph/sourcegraph/internal/search/exhaustive/types"
+	"github.com/sourcegraph/sourcegraph/internal/uploadstore/mocks"
 )
 
 func TestExhaustiveSearch(t *testing.T) {
@@ -31,7 +32,7 @@ func TestExhaustiveSearch(t *testing.T) {
 	logger := observationCtx.Logger
 	db := database.NewDB(logger, dbtest.NewDB(logger, t))
 	store := store.New(db, observation.TestContextTB(t))
-	svc := service.New(observationCtx, store)
+	svc := service.New(observationCtx, store, mocks.NewMockStore())
 
 	userID := insertRow(t, store.Store, "users", "username", "alice")
 	insertRow(t, store.Store, "repo", "id", 1, "name", "repoa")

@@ -47,6 +47,7 @@ go_test(
         "//internal/search/exhaustive/service",
         "//internal/search/exhaustive/store",
         "//internal/search/exhaustive/types",
+        "//internal/uploadstore/mocks",
         "@com_github_keegancsmith_sqlf//:sqlf",
         "@com_github_stretchr_testify//require",
     ],
