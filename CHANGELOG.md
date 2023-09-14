@@ -25,6 +25,7 @@ All notable changes to Sourcegraph are documented in this file.
 - Bitbucket Cloud code host connections no longer automatically syncs the repository of the username used. The appropriate workspace name will have to be added to the `teams` list if repositories for that account need to be synced. [#55095](https://github.com/sourcegraph/sourcegraph/pull/55095)
 - Newly created access tokens are now hidden by default in the Sourcegraph UI. To view a token, click "show" button next to the token. [#56481](https://github.com/sourcegraph/sourcegraph/pull/56481)
 - The GitHub proxy service has been removed and is no longer required. You can safely remove it from your deployment. [#55290](https://github.com/sourcegraph/sourcegraph/issues/55290)
+- Changed the default autoindexing queue order algorithm from the original FIFO algorithm to a custom one that 1) prioritizes manually user-enqueued jobs 2) biases for newer enqueued jobs over older ones and 3) attempts to prevent starvation of repos from the selection process. The original FIFO algorithm can be re-enabled by setting `CODEINTEL_AUTOINDEXING_DEQUEUE_FIFO_ALGORITHM=true` on `sourcegraph-frontend`. [#56195](https://github.com/sourcegraph/sourcegraph/pull/56195), [#55745](https://github.com/sourcegraph/sourcegraph/pull/55745)
 
 ### Fixed
 
