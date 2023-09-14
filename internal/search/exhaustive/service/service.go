@@ -137,7 +137,7 @@ func (s *Service) GetSearchJob(ctx context.Context, id int64) (_ *types.Exhausti
 	return s.store.GetExhaustiveSearchJob(ctx, id)
 }
 
-func (s *Service) ListSearchJobs(ctx context.Context) (jobs []*types.ExhaustiveSearchJob, err error) {
+func (s *Service) ListSearchJobs(ctx context.Context, args store.ListArgs) (jobs []*types.ExhaustiveSearchJob, err error) {
 	ctx, _, endObservation := s.operations.listSearchJobs.With(ctx, &err, observation.Args{})
 	defer func() {
 		endObservation(1, opAttrs(
@@ -145,5 +145,5 @@ func (s *Service) ListSearchJobs(ctx context.Context) (jobs []*types.ExhaustiveS
 		))
 	}()
 
-	return s.store.ListExhaustiveSearchJobs(ctx)
+	return s.store.ListExhaustiveSearchJobs(ctx, args)
 }
