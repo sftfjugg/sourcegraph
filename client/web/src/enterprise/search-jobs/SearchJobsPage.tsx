@@ -101,7 +101,7 @@ export const SearchJobsPage: FC = props => {
     const [searchStateTerm, setSearchStateTerm] = useState('')
     const [selectedUsers, setUsers] = useState<User[]>([])
     const [selectedStates, setStates] = useState<SearchJobState[]>([])
-    const [sortBy, setSortBy] = useState<SearchJobsOrderBy>(SearchJobsOrderBy.CREATED_DATE)
+    const [sortBy, setSortBy] = useState<SearchJobsOrderBy>(SearchJobsOrderBy.CREATED_AT)
 
     const { connection, error, loading, fetchMore, hasNextPage } = useShowMorePagination<
         SearchJobsResult,
@@ -199,7 +199,7 @@ export const SearchJobsPage: FC = props => {
                         className={styles.sort}
                         selectClassName={styles.sortSelect}
                     >
-                        <option value={SearchJobsOrderBy.CREATED_DATE}>Sort by Created date</option>
+                        <option value={SearchJobsOrderBy.CREATED_AT}>Sort by Created date</option>
                         <option value={SearchJobsOrderBy.QUERY}>Sort by Query</option>
                         <option value={SearchJobsOrderBy.STATE}>Sort by Status</option>
                     </Select>

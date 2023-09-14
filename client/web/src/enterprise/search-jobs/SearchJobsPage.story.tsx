@@ -31,13 +31,12 @@ export default defaultStory
 
 const SEARCH_JOBS_MOCK: MockedResponse<SearchJobsResult, SearchJobsVariables> = {
     request: {
-        query: getDocumentNode(SEARCH_JOBS_QUERY),
-        variables: {
+        query: getDocumentNode(SEARCH_JOBS_QUERY), variables: {
             first: 5,
             after: null,
             query: '',
             states: [],
-            orderBy: SearchJobsOrderBy.CREATED_DATE,
+            orderBy: SearchJobsOrderBy.CREATED_AT,
         },
     },
     result: {
