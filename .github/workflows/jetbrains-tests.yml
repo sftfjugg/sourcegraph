@@ -40,6 +40,18 @@ jobs:
           java-version: 11
           cache: gradle
 
+      - name: Cache Gradle downloads & JetBrains IDE platforms for verification
+        id: cache-platform-versions
+        uses: actions/cache@v3
+        with:
+          path:  |
+            ~/.gradle/caches
+            ~/.cache/pluginVerifier
+          key: ${{ runner.os }}-gradle-ides-${{ hashFiles('**/build.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-ides-
+            ${{ runner.os }}-
+
       - name: Run Tests
         run: ./gradlew test
 
