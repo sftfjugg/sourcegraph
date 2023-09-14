@@ -2100,10 +2100,11 @@ func (s *Server) doClone(
 	pr, pw := io.Pipe()
 	defer pw.Close()
 
-	go readCloneProgress(s.DB, logger, newURLRedactor(remoteURL), lock, pr, repo)
+	r := newURLRedactor(remoteURL)
+	go readCloneProgress(s.DB, logger, r, lock, pr, repo)
 
-	output, err := runRemoteGitCommand(ctx, s.RecordingCommandFactory.WrapWithRepoName(ctx, s.Logger, repo, cmd), true, pw)
-	redactedOutput := newURLRedactor(remoteURL).redact(string(output))
+	output, err := runRemoteGitCommand(ctx, s.RecordingCommandFactory.WrapWithRepoName(ctx, s.Logger, repo, cmd).WithRedactorFunc(r.redact), true, pw)
+	redactedOutput := r.redact(string(output))
 	// best-effort update the output of the clone
 	if err := s.DB.GitserverRepos().SetLastOutput(context.Background(), repo, redactedOutput); err != nil {
 		s.Logger.Warn("Setting last output in DB", log.Error(err))
@@ -2613,7 +2614,8 @@ func setHEAD(ctx context.Context, logger log.Logger, rcf *wrexec.RecordingComman
 		return errors.Wrap(err, "get remote show command")
 	}
 	dir.Set(cmd)
-	output, err := runRemoteGitCommand(ctx, rcf.WrapWithRepoName(ctx, logger, repoName, cmd), true, nil)
+	r := newURLRedactor(remoteURL)
+	output, err := runRemoteGitCommand(ctx, rcf.WrapWithRepoName(ctx, logger, repoName, cmd).WithRedactorFunc(r.redact), true, nil)
 	if err != nil {
 		logger.Error("Failed to fetch remote info", log.Error(err), log.String("output", string(output)))
 		return errors.Wrap(err, "failed to fetch remote info")
